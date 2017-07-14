@@ -316,7 +316,7 @@ update msg model =
             ( { model | selectedIndex = index }, Cmd.none )
 
         GoToRoute route ->
-            ( { model | route = route }, Cmd.none )
+            ( { model | route = route, backShown = False }, Cmd.none )
 
         ShowBack ->
             ( { model | backShown = True }, Cmd.none )
