@@ -54,7 +54,7 @@ type Msg
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model mockText 0 mockDict mockSavedWords False Study, Cmd.none )
+    ( Model mockText 0 mockDict mockSavedWords False Read, Cmd.none )
 
 
 view : Model -> Html Msg
