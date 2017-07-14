@@ -37,7 +37,7 @@ type StudyResponse
 type Route
     = Read
     | Study
-    | Edit
+    | Saved
     | Profile
 
 
@@ -57,13 +57,13 @@ type Msg
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model mockText 0 mockDict mockSavedWords Edit, Cmd.none )
+    ( Model mockText 0 mockDict mockSavedWords Read, Cmd.none )
 
 
 view : Model -> Html Msg
 view model =
     div [ class "row" ]
-        [ div [ class "col-12 col-sm-8 offset-sm-2" ]
+        [ div [ class "col-12 col-sm-8 offset-sm-2", style [ ( "height", "100%" ) ] ]
             [ case model.route of
                 Read ->
                     viewRead model
@@ -71,8 +71,8 @@ view model =
                 Study ->
                     viewStudy model
 
-                Edit ->
-                    viewEdit model
+                Saved ->
+                    viewSaved model
 
                 Profile ->
                     viewProfile model
@@ -88,14 +88,16 @@ viewRead model =
             lookupEntry model.dict model.selectedIndex model.input
     in
         div []
-            [ textarea
-                [ onInput Input
-                , class "form-control"
-                , placeholder "Paste in Japanese text"
-                , value model.input
-                ]
-                []
-            , div [ class "p-4" ]
+            [ {- textarea
+                     [ onInput Input
+                     , class "form-control"
+                     , placeholder "Paste in Japanese text"
+                     , value model.input
+                     ]
+                     []
+                 ,
+              -}
+              div [ class "p-4" ]
                 (List.indexedMap
                     (viewCharacter model.selectedIndex entryLength)
                     (String.split "" model.input)
@@ -106,7 +108,15 @@ viewRead model =
 
 viewEntry : String -> Html Msg
 viewEntry entry =
-    div [ class "card" ]
+    div
+        [ class "card"
+        , style
+            [ ( "position", "absolute" )
+            , ( "left", "0" )
+            , ( "right", "0" )
+            , ( "bottom", "10%" )
+            ]
+        ]
         [ div [ class "card-block" ]
             (List.map
                 (\e ->
@@ -171,8 +181,8 @@ viewStudy model =
     div [] [ text "study" ]
 
 
-viewEdit : Model -> Html Msg
-viewEdit model =
+viewSaved : Model -> Html Msg
+viewSaved model =
     div []
         (List.indexedMap
             (\i savedWord ->
@@ -195,7 +205,7 @@ viewEdit model =
 
 viewProfile : Model -> Html Msg
 viewProfile model =
-    div [ class "jumbotron mb-0" ]
+    div [ class "jumbotron mb-0", style [ ( "height", "100%" ) ] ]
         [ h1 [ class "text-center" ]
             [ text "Profile" ]
         , div [ class "card" ]
@@ -217,11 +227,19 @@ viewProfile model =
 
 viewRoutes : Route -> Html Msg
 viewRoutes route =
-    div [ class "row" ]
-        [ viewRoute route Read "Read"
-        , viewRoute route Study "Study"
-        , viewRoute route Edit "Edit"
-        , viewRoute route Profile "Profile"
+    div
+        [ style
+            [ ( "position", "absolute" )
+            , ( "bottom", "0" )
+            , ( "width", "100%" )
+            ]
+        ]
+        [ div [ class "row" ]
+            [ viewRoute route Read "Read"
+            , viewRoute route Study "Study"
+            , viewRoute route Saved "Saved"
+            , viewRoute route Profile "Profile"
+            ]
         ]
 
 
