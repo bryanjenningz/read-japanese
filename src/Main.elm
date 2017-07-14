@@ -11,13 +11,14 @@ type alias Model =
     , selectedIndex : Int
     , dict : Dict String String
     , savedWords : List SavedWord
+    , backShown : Bool
     , route : Route
     }
 
 
 type alias SavedWord =
     { word : Word
-    , points : Int
+    , score : Int
     }
 
 
@@ -26,12 +27,6 @@ type alias Word =
     , kana : String
     , definition : String
     }
-
-
-type StudyResponse
-    = Fail
-    | Ok
-    | Good
 
 
 type Route
@@ -45,6 +40,8 @@ type Msg
     = Input String
     | Select Int
     | GoToRoute Route
+    | ShowBack
+    | StudyRep Bool
 
 
 (?:) : Bool -> ( a, a ) -> a
@@ -57,7 +54,7 @@ type Msg
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model mockText 0 mockDict mockSavedWords Read, Cmd.none )
+    ( Model mockText 0 mockDict mockSavedWords False Study, Cmd.none )
 
 
 view : Model -> Html Msg
@@ -178,7 +175,39 @@ characterColor isSelected =
 
 viewStudy : Model -> Html Msg
 viewStudy model =
-    div [] [ text "study" ]
+    let
+        first =
+            List.head model.savedWords
+                |> Maybe.withDefault (SavedWord (Word "" "" "") 1)
+    in
+        if model.backShown then
+            div [ class "jumbotron text-center", style [ ( "height", "100%" ) ] ]
+                [ h2 [] [ text first.word.kanji ]
+                , hr [] []
+                , h2 [] [ text first.word.kana ]
+                , h4 [] [ text first.word.definition ]
+                , div [ class "row" ]
+                    [ div
+                        [ class "col-6"
+                        , onClick (StudyRep False)
+                        ]
+                        [ button [ class "btn btn-danger btn-block" ] [ text "Fail" ] ]
+                    , div
+                        [ class "col-6"
+                        , onClick (StudyRep True)
+                        ]
+                        [ button [ class "btn btn-primary btn-block" ] [ text "Pass" ] ]
+                    ]
+                ]
+        else
+            div [ class "jumbotron text-center", style [ ( "height", "100%" ) ] ]
+                [ h2 [] [ text first.word.kanji ]
+                , button
+                    [ class "btn btn-primary btn-block"
+                    , onClick ShowBack
+                    ]
+                    [ text "Show" ]
+                ]
 
 
 viewSaved : Model -> Html Msg
@@ -274,6 +303,29 @@ update msg model =
 
         GoToRoute route ->
             ( { model | route = route }, Cmd.none )
+
+        ShowBack ->
+            ( { model | backShown = True }, Cmd.none )
+
+        StudyRep isPassing ->
+            case model.savedWords of
+                [] ->
+                    ( model, Cmd.none )
+
+                first :: rest ->
+                    let
+                        score =
+                            if isPassing then
+                                first.score + 3
+                            else
+                                1
+
+                        savedWords =
+                            List.take score rest
+                                ++ [ { first | score = score } ]
+                                ++ List.drop score rest
+                    in
+                        ( { model | savedWords = savedWords, backShown = False }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
