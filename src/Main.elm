@@ -186,7 +186,15 @@ viewStudy model =
                 , hr [] []
                 , h2 [] [ text first.word.kana ]
                 , h4 [] [ text first.word.definition ]
-                , div [ class "row" ]
+                , div
+                    [ class "row"
+                    , style
+                        [ ( "position", "absolute" )
+                        , ( "left", "10%" )
+                        , ( "width", "80%" )
+                        , ( "bottom", "20%" )
+                        ]
+                    ]
                     [ div
                         [ class "col-6"
                         , onClick (StudyRep False)
@@ -204,6 +212,12 @@ viewStudy model =
                 [ h2 [] [ text first.word.kanji ]
                 , button
                     [ class "btn btn-primary btn-block"
+                    , style
+                        [ ( "position", "absolute" )
+                        , ( "left", "10%" )
+                        , ( "width", "80%" )
+                        , ( "bottom", "20%" )
+                        ]
                     , onClick ShowBack
                     ]
                     [ text "Show" ]
